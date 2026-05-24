@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/video_model.dart';
 
 class VideoInfoWidget extends StatelessWidget {
@@ -16,16 +15,15 @@ class VideoInfoWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Username with verified badge and follow button hint
+          // Username with verified badge
           Row(
             children: [
               Text(
                 '@${video.username}',
-                style: GoogleFonts.poppins(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 0.3,
                 ),
               ),
               if (video.isVerified) ...[
@@ -46,20 +44,19 @@ class VideoInfoWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          // Description with better typography
+          // Description
           Text(
             video.description,
-            style: GoogleFonts.inter(
-              color: Colors.white.withOpacity(0.95),
+            style: const TextStyle(
+              color: Colors.white,
               fontSize: 14,
               height: 1.4,
-              fontWeight: FontWeight.w400,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-          // Music info with animated marquee effect simulation
+          // Music info
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -85,11 +82,10 @@ class VideoInfoWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     video.songName,
-                    style: GoogleFonts.inter(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      letterSpacing: 0.2,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

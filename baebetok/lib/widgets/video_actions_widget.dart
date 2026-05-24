@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/video_model.dart';
-import '../services/video_provider.dart';
-import 'interactive_poll_widget.dart';
 
 class VideoActionsWidget extends StatelessWidget {
   final VideoModel video;
@@ -17,16 +13,11 @@ class VideoActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final videoProvider = context.watch<VideoProvider>();
-    final isGhostMode = videoProvider.ghostModeEnabled;
-
     return Positioned(
       right: 12,
       bottom: 100,
       child: Column(
         children: [
-          if (isGhostMode) _buildGhostModeIndicator(),
-          const SizedBox(height: 8),
           _buildActionButton(
             icon: Icons.favorite_rounded,
             label: _formatNumber(video.likes),
@@ -57,65 +48,9 @@ class VideoActionsWidget extends StatelessWidget {
               // Share functionality
             },
           ),
-          if (video.hasPoll) ...[
-            const SizedBox(height: 16),
-            _buildPollIndicator(),
-          ],
           const SizedBox(height: 24),
           _buildMusicDisc(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildGhostModeIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.purple.shade400, Colors.purple.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.purple.withOpacity(0.5),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.visibility_off_rounded,
-        color: Colors.white,
-        size: 24,
-      ),
-    );
-  }
-
-  Widget _buildPollIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.pink.shade400, Colors.pink.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.pink.withOpacity(0.5),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.poll_rounded,
-        color: Colors.white,
-        size: 24,
       ),
     );
   }
@@ -151,7 +86,7 @@ class VideoActionsWidget extends StatelessWidget {
           child: IconButton(
             icon: Icon(
               icon,
-              color: isLiked ? Colors.white : Colors.white,
+              color: Colors.white,
               size: 32,
             ),
             onPressed: onPressed,
@@ -162,11 +97,10 @@ class VideoActionsWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
             ),
           ),
         ],

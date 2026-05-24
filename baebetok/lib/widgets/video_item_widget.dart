@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/video_model.dart';
 import '../services/video_provider.dart';
 import 'video_player_widget.dart';
@@ -20,6 +19,7 @@ class VideoItemWidget extends StatefulWidget {
 class _VideoItemWidgetState extends State<VideoItemWidget> {
   bool _isUiVisible = true;
   Timer? _hideTimer;
+  bool _isMuted = false;
 
   void _toggleUi() {
     setState(() {
@@ -27,7 +27,6 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
     });
 
     if (_isUiVisible) {
-      // If turning ON, set timer to turn OFF after 3 seconds
       _hideTimer?.cancel();
       _hideTimer = Timer(const Duration(seconds: 3), () {
         if (mounted) {
@@ -37,9 +36,91 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
         }
       });
     } else {
-      // If turning OFF manually, cancel any existing timer
       _hideTimer?.cancel();
     }
+  }
+
+  void _toggleMute() {
+    setState(() {
+      _isMuted = !_isMuted;
+    });
+    // Reset UI timer on interaction
+    if (!_isUiVisible) {
+      _toggleUi();
+    }
+  }
+
+  void _showClearDisplay() {
+    // Long press shows context menu for Clear Display
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[700],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.remove_red_eye_outlined, color: Colors.white),
+              title: const Text(
+                'Clear Display',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              subtitle: Text(
+                'Hide all UI for clean viewing',
+                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _isUiVisible = false;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Clear Display activated'),
+                    backgroundColor: Colors.grey[800],
+                    behavior: SnackBarBehavior.floating,
+                    action: SnackBarAction(
+                      label: 'Show UI',
+                      textColor: Colors.purpleAccent,
+                      onPressed: () {
+                        setState(() {
+                          _isUiVisible = true;
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(_isMuted ? Icons.volume_off : Icons.volume_up, color: Colors.white),
+              title: Text(
+                _isMuted ? 'Unmute Video' : 'Mute Video',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _toggleMute();
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -55,8 +136,31 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
         // Video Player Layer - Full Screen Tap Area
         GestureDetector(
           onTap: _toggleUi,
-          child: VideoPlayerWidget(videoUrl: widget.video.videoUrl),
+          onLongPress: _showClearDisplay,
+          child: VideoPlayerWidget(
+            videoUrl: widget.video.videoUrl,
+            isMuted: _isMuted,
+          ),
         ),
+
+        // Mute Indicator (when muted)
+        if (_isMuted && _isUiVisible)
+          Positioned(
+            top: 100,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.volume_off,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
 
         // UI Overlay Layer (Fades in/out)
         AnimatedOpacity(
@@ -88,13 +192,6 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
                   ),
                 ),
 
-                // Mood badge - Premium glassmorphism style
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 60,
-                  left: 16,
-                  child: _buildMoodBadge(),
-                ),
-
                 // Video Info (username, description, song)
                 Positioned(
                   left: 16,
@@ -115,69 +212,6 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildMoodBadge() {
-    Color moodColor;
-    IconData moodIcon;
-    
-    switch (widget.video.mood.toLowerCase()) {
-      case 'chill':
-        moodColor = const Color(0xFF6B5BFF);
-        moodIcon = Icons.self_improvement_outlined;
-        break;
-      case 'hype':
-        moodColor = const Color(0xFFFF4757);
-        moodIcon = Icons.flash_on_outlined;
-        break;
-      case 'learn':
-        moodColor = const Color(0xFF2ED573);
-        moodIcon = Icons.school_outlined;
-        break;
-      case 'party':
-        moodColor = const Color(0xFFFFA502);
-        moodIcon = Icons.celebration_outlined;
-        break;
-      case 'focus':
-        moodColor = const Color(0xFF3742FA);
-        moodIcon = Icons.brain_outlined;
-        break;
-      default:
-        moodColor = Colors.grey;
-        moodIcon = Icons.tag_outlined;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: moodColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: moodColor.withOpacity(0.5), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: moodColor.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(moodIcon, color: moodColor, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            widget.video.mood.toUpperCase(),
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: moodColor,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../widgets/video_item_widget.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../services/video_provider.dart';
-import '../widgets/mood_selector_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -12,18 +11,21 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   late PageController _pageController;
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _pageController = PageController(initialPage: 0);
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -42,92 +44,81 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final videoProvider = context.watch<VideoProvider>();
-    final videos = videoProvider.filteredVideos;
     final isGhostMode = videoProvider.ghostModeEnabled;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Mood Selector
-          MoodSelectorWidget(),
-
-          // Video feed with page view
-          PageView.builder(
-            controller: _pageController,
-            itemCount: videos.length,
-            scrollDirection: Axis.vertical,
-            onPageChanged: _onPageChanged,
-            itemBuilder: (context, index) {
-              return VideoItemWidget(video: videos[index]);
-            },
-          ),
-
-          // Top navigation tabs (Following | For You)
-          Positioned(
-            top: 140,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Following',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+          // Main Content with Tabs and Video Feed
+          Column(
+            children: [
+              // Top App Bar with Tabs
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.white,
+                          indicatorSize: TabBarIndicatorSize.label,
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.grey,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          tabs: const [
+                            Tab(text: 'For You'),
+                            Tab(text: 'Following'),
+                            Tab(text: 'Twist'), // Unique Section
+                          ],
+                        ),
+                      ),
+                      // Search Icon on Top Right
+                      IconButton(
+                        icon: const Icon(Icons.search, color: Colors.white),
+                        onPressed: () {},
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 20),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'For You',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              ),
+              // Video Feed
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildVideoList('foryou'),
+                    _buildVideoList('following'),
+                    _buildVideoList('twist'),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
 
-          // Top icons (ghost mode, cast, search)
+          // Ghost Mode Toggle (Top Right below search)
           Positioned(
-            top: 140,
+            top: 60,
             right: 15,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    isGhostMode ? Icons.visibility_off : Icons.visibility,
-                    color: isGhostMode ? Colors.purple : Colors.white,
-                  ),
-                  onPressed: _toggleGhostMode,
-                  tooltip: isGhostMode ? 'Disable Ghost Mode' : 'Enable Ghost Mode',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.cast, color: Colors.white),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.search, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ],
+            child: IconButton(
+              icon: Icon(
+                isGhostMode ? Icons.visibility_off : Icons.visibility,
+                color: isGhostMode ? Colors.purple : Colors.white,
+              ),
+              onPressed: _toggleGhostMode,
+              tooltip: isGhostMode ? 'Disable Ghost Mode' : 'Enable Ghost Mode',
             ),
           ),
 
           // Ghost Mode Banner
           if (isGhostMode)
             Positioned(
-              top: 50,
+              top: 110,
               left: 0,
               right: 0,
               child: Container(
@@ -143,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Icon(Icons.visibility_off, color: Colors.white, size: 18),
                     SizedBox(width: 8),
                     Text(
-                      'Ghost Mode Active - Browse Incognito',
+                      'Ghost Mode Active',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -162,6 +153,41 @@ class _HomeScreenState extends State<HomeScreen> {
           // Handle navigation
         },
       ),
+    );
+  }
+
+  Widget _buildVideoList(String type) {
+    return Consumer<VideoProvider>(
+      builder: (context, provider, child) {
+        var videos = provider.videos;
+        
+        // Simple filtering logic
+        if (type == 'following') {
+          videos = videos.where((v) => v.isFollowing).toList();
+        } else if (type == 'twist') {
+          // Twist: High engagement or trending content
+          videos = videos.where((v) => v.likes > 500).toList();
+        }
+
+        if (videos.isEmpty) {
+          return const Center(
+            child: Text(
+              'No videos yet',
+              style: TextStyle(color: Colors.white70),
+            ),
+          );
+        }
+
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: videos.length,
+          scrollDirection: Axis.vertical,
+          onPageChanged: _onPageChanged,
+          itemBuilder: (context, index) {
+            return VideoItemWidget(video: videos[index]);
+          },
+        );
+      },
     );
   }
 }
