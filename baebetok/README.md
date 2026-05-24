@@ -17,7 +17,7 @@ A fully functional TikTok clone application built with Flutter, featuring vertic
 ## Project Structure
 
 ```
-tiktok_clone/
+baebetok/
 ├── lib/
 │   ├── main.dart                 # App entry point
 │   ├── models/
@@ -60,7 +60,7 @@ tiktok_clone/
 
 1. Clone the repository:
 ```bash
-cd tiktok_clone
+cd baebetok
 ```
 
 2. Install dependencies:
