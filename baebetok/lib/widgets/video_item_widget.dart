@@ -5,6 +5,7 @@ import '../services/video_provider.dart';
 import 'video_player_widget.dart';
 import 'video_actions_widget.dart';
 import 'video_info_widget.dart';
+import 'interactive_poll_widget.dart';
 
 class VideoItemWidget extends StatelessWidget {
   final VideoModel video;
@@ -24,7 +25,7 @@ class VideoItemWidget extends StatelessWidget {
           right: 0,
           bottom: 0,
           child: Container(
-            height: 150,
+            height: 250,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -37,6 +38,15 @@ class VideoItemWidget extends StatelessWidget {
             ),
           ),
         ),
+
+        // Interactive Poll (if available)
+        if (video.hasPoll)
+          Positioned(
+            left: 0,
+            right: 80,
+            bottom: 180,
+            child: InteractivePollWidget(video: video),
+          ),
 
         // Video Info (username, description, song)
         VideoInfoWidget(video: video),

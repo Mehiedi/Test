@@ -1,3 +1,5 @@
+enum VideoMood { chill, hype, learn, party, focus }
+
 class VideoModel {
   final String id;
   final String videoUrl;
@@ -9,6 +11,11 @@ class VideoModel {
   final int comments;
   final int shares;
   final bool isLiked;
+  final VideoMood mood;
+  final bool hasPoll;
+  final Map<String, int>? pollOptions;
+  final String? pollQuestion;
+  final bool isGhostModeCompatible;
 
   VideoModel({
     required this.id,
@@ -21,5 +28,10 @@ class VideoModel {
     required this.comments,
     required this.shares,
     this.isLiked = false,
+    this.mood = VideoMood.chill,
+    this.hasPoll = false,
+    this.pollOptions,
+    this.pollQuestion,
+    this.isGhostModeCompatible = true,
   });
 }

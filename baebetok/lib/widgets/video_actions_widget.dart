@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/video_model.dart';
+import '../services/video_provider.dart';
+import 'interactive_poll_widget.dart';
 
 class VideoActionsWidget extends StatelessWidget {
   final VideoModel video;
@@ -13,11 +16,16 @@ class VideoActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final videoProvider = context.watch<VideoProvider>();
+    final isGhostMode = videoProvider.ghostModeEnabled;
+
     return Positioned(
       right: 10,
       bottom: 100,
       child: Column(
         children: [
+          if (isGhostMode)
+            _buildGhostModeIndicator(),
           _buildActionButton(
             icon: Icons.favorite,
             label: '${_formatNumber(video.likes)}',
@@ -40,9 +48,43 @@ class VideoActionsWidget extends StatelessWidget {
               // Share functionality
             },
           ),
+          if (video.hasPoll) ...[
+            const SizedBox(height: 20),
+            _buildPollIndicator(),
+          ],
           const SizedBox(height: 30),
           _buildMusicDisc(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGhostModeIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.purple.withOpacity(0.8),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.visibility_off,
+        color: Colors.white,
+        size: 28,
+      ),
+    );
+  }
+
+  Widget _buildPollIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.pink.withOpacity(0.8),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.poll,
+        color: Colors.white,
+        size: 28,
       ),
     );
   }
