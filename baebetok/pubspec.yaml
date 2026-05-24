@@ -35,6 +35,10 @@ dependencies:
   
   # Local storage for history
   shared_preferences: ^2.2.2
+  
+  # Premium UI
+  google_fonts: ^6.1.0
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/video_model.dart';
 import '../services/video_provider.dart';
 import 'interactive_poll_widget.dart';
@@ -20,39 +21,47 @@ class VideoActionsWidget extends StatelessWidget {
     final isGhostMode = videoProvider.ghostModeEnabled;
 
     return Positioned(
-      right: 10,
+      right: 12,
       bottom: 100,
       child: Column(
         children: [
-          if (isGhostMode)
-            _buildGhostModeIndicator(),
+          if (isGhostMode) _buildGhostModeIndicator(),
+          const SizedBox(height: 8),
           _buildActionButton(
-            icon: Icons.favorite,
-            label: '${_formatNumber(video.likes)}',
+            icon: Icons.favorite_rounded,
+            label: _formatNumber(video.likes),
             isLiked: video.isLiked,
             onPressed: onLike,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           _buildActionButton(
-            icon: Icons.comment,
-            label: '${_formatNumber(video.comments)}',
+            icon: Icons.chat_bubble_rounded,
+            label: _formatNumber(video.comments),
             onPressed: () {
               // Navigate to comments
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           _buildActionButton(
-            icon: Icons.share,
-            label: '${_formatNumber(video.shares)}',
+            icon: Icons.bookmark_border_rounded,
+            label: _formatNumber(video.shares),
+            onPressed: () {
+              // Share functionality
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildActionButton(
+            icon: Icons.send_rounded,
+            label: '',
             onPressed: () {
               // Share functionality
             },
           ),
           if (video.hasPoll) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _buildPollIndicator(),
           ],
-          const SizedBox(height: 30),
+          const SizedBox(height: 24),
           _buildMusicDisc(),
         ],
       ),
@@ -61,30 +70,52 @@ class VideoActionsWidget extends StatelessWidget {
 
   Widget _buildGhostModeIndicator() {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.purple.withOpacity(0.8),
+        gradient: LinearGradient(
+          colors: [Colors.purple.shade400, Colors.purple.shade700],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.5),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: const Icon(
-        Icons.visibility_off,
+        Icons.visibility_off_rounded,
         color: Colors.white,
-        size: 28,
+        size: 24,
       ),
     );
   }
 
   Widget _buildPollIndicator() {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.pink.withOpacity(0.8),
+        gradient: LinearGradient(
+          colors: [Colors.pink.shade400, Colors.pink.shade700],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.pink.withOpacity(0.5),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: const Icon(
-        Icons.poll,
+        Icons.poll_rounded,
         color: Colors.white,
-        size: 28,
+        size: 24,
       ),
     );
   }
@@ -99,46 +130,89 @@ class VideoActionsWidget extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Colors.black26,
+            gradient: LinearGradient(
+              colors: isLiked
+                  ? [Colors.red.shade400, Colors.red.shade700]
+                  : [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.05)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
             shape: BoxShape.circle,
+            boxShadow: isLiked
+                ? [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.4),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
           ),
           child: IconButton(
             icon: Icon(
               icon,
-              color: isLiked ? Colors.red : Colors.white,
-              size: 35,
+              color: isLiked ? Colors.white : Colors.white,
+              size: 32,
             ),
             onPressed: onPressed,
+            padding: const EdgeInsets.all(10),
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+        if (label.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
 
   Widget _buildMusicDisc() {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 3),
-      ),
-      child: const Center(
-        child: Icon(
-          Icons.music_note,
-          color: Colors.white,
-          size: 25,
-        ),
-      ),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(seconds: 4),
+      tween: Tween(begin: 0, end: 1),
+      builder: (context, value, child) {
+        return Transform.rotate(
+          angle: value * 2 * 3.14159,
+          child: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey.shade900, Colors.black],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
