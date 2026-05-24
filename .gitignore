@@ -2,38 +2,41 @@
 # Flutter/Dart specific
 .dart_tool/
 .build/
-flutter/.pub-cache/
-**/ios/.symlinks/
-**/android/.gradle/
-**/android/flutter/build/
-
-# Dependencies
-.pub/
-.packages
-
-# Generated plugin code
-**/android/src/main/kotlin/**/GeneratedPluginRegistrant.kt
-**/ios/Runner/GeneratedPluginRegistrant.h
-**/ios/Runner/GeneratedPluginRegistrant.m
-
-# Distribution
-*.app.zip
-*.aab
-*.apk
-*.ipa
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
+coverage/
+*.iws
+*.sw
 *.tmp
-
-# Logs
 *.log
+*.lock
+pubspec.lock
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+build/
+dist/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 ```
