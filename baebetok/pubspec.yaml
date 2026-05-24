@@ -1,0 +1,38 @@
+name: baebetok
+description: A TikTok clone application built with Flutter named Baebetok.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Video player
+  video_player: ^2.8.0
+  chewie: ^1.7.0
+  
+  # State management
+  provider: ^6.1.0
+  
+  # UI components
+  cupertino_icons: ^1.0.6
+  
+  # Networking (for future API integration)
+  http: ^1.1.0
+  
+  # Cached network images
+  cached_network_image: ^3.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
