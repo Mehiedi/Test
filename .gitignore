@@ -1,0 +1,33 @@
+```
+# Flutter/Dart
+.dart_tool/
+.build/
+.pub/
+flutter/
+packages/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
